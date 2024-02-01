@@ -51,7 +51,7 @@ This was made on my iPhone, using Swifty!
 
 #### Credits
 
-This app is created by [Speedyfriend67].
+This app is created by Speedyfriend67.
 
 #### License
 
