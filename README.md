@@ -1,15 +1,14 @@
 ### SwiftUI Image To Text Extractor
 
-This SwiftUI app allows users to extract text from images, edit the extracted text, save it as a file, and view the extraction history.
-This was made on my iPhone, using Swifty!
+This SwiftUI app, named **Imager**, enables users to extract text from images, edit the extracted text, save it as a file, and view the extraction history. It was developed on an iPhone using Swifty by sparkclechanJB.
 
 #### Features
 
-- **Text Extraction**: Extract text from images using OCR (Optical Character Recognition).
-- **Editing**: Edit the extracted text directly within the app.
-- **Export**: Save the extracted text as a text file and share it with others.
-- **History**: View a history of past text extractions with the ability to share and delete entries.
-- **Easy-to-Use Interface**: Intuitive UI design for effortless text extraction and management.
+- **Text Extraction**: Utilizes OCR (Optical Character Recognition) to extract text from images.
+- **Editing**: Enables users to edit the extracted text directly within the app.
+- **Export**: Allows users to save the extracted text as a text file and share it with others.
+- **History**: Provides a history feature to view past text extraction entries with sharing and deletion options.
+- **Easy-to-Use Interface**: Designed with an intuitive UI for effortless text extraction and management.
 
 #### Screenshots
 
@@ -18,10 +17,10 @@ This was made on my iPhone, using Swifty!
 #### Usage
 
 1. **Select Image**: Tap the "Select Image" button to choose an image from the photo library.
-2. **Text Extraction**: Once an image is selected, the app will extract text from the image using OCR.
-3. **Text Editing**: Edit the extracted text directly within the app if needed.
+2. **Text Extraction**: Once an image is selected, the app extracts text from it using OCR.
+3. **Text Editing**: Users can edit the extracted text directly within the app if needed.
 4. **Export**: Tap the "Export" button to save the extracted text as a text file and share it.
-5. **History**: Switch to the "History" tab to view past text extractions, share entries, and delete them.
+5. **History**: Navigate to the "History" tab to view past text extraction entries, share them, or delete them.
 
 #### Code Overview
 
