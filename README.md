@@ -12,7 +12,8 @@ This SwiftUI app, named **Imager**, enables users to extract text from images, e
 
 #### Screenshots
 
-![Screenshot 1](Screenshots/screenshot1.png) ![Screenshot 2](Screenshots/screenshot2.png)
+![IMG_7408](https://github.com/speedyfriend67/Imager-ExtractTextFromImage/assets/82425907/0978c554-afea-41e6-a0e2-663d03b29126)
+
 
 #### Usage
 
