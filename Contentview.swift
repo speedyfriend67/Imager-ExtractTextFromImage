@@ -6,7 +6,7 @@ struct HistoryItem: Identifiable {
     var id = UUID()
     var date: Date
     var extractedText: String
-    var editedText: String
+    var editedText: String // New property for edited text
 }
 
 struct HistoryView: View {
@@ -17,24 +17,28 @@ struct HistoryView: View {
 
     var body: some View {
         NavigationView {
-            List(historyItems) { item in
-                Button(action: {
-                    selectedHistoryItem = item
-                }) {
-                    VStack(alignment: .leading) {
-                        Text("\(item.date, formatter: dateFormatter)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Text(item.extractedText)
-                            .lineLimit(1)
-                            .font(.body)
-                            .foregroundColor(.blue)
+            ZStack {
+                Color.gray.opacity(0.1) // Solid color background
+
+                List(historyItems) { item in
+                    Button(action: {
+                        selectedHistoryItem = item
+                    }) {
+                        VStack(alignment: .leading) {
+                            Text("\(item.date, formatter: dateFormatter)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            Text(item.extractedText)
+                                .lineLimit(1)
+                                .font(.body)
+                                .foregroundColor(.blue)
+                        }
                     }
                 }
-            }
-            .navigationTitle("History")
-            .sheet(item: $selectedHistoryItem) { historyItem in
-                ShareSheetView(text: historyItem.extractedText, isPresented: $isShareSheetPresented)
+                .navigationTitle("History")
+                .sheet(item: $selectedHistoryItem) { historyItem in
+                    ShareSheetView(text: historyItem.extractedText, isPresented: $isShareSheetPresented)
+                }
             }
         }
     }
@@ -74,125 +78,128 @@ struct ContentView: View {
     var body: some View {
         TabView {
             NavigationView {
-                ScrollView {
-                    VStack(spacing: 20) {
-                        if selectedImage == nil {
-                            Text("Select image to extract text")
-                                .font(.title)
-                                .foregroundColor(.gray)
-                                .padding()
-                        }
+                ZStack {
+                    Color.gray.opacity(0.1) // Solid color background
 
-                        Button("Select Image") {
-                            self.isShowingImagePicker.toggle()
-                        }
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.blue)
-                        .cornerRadius(10)
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            if selectedImage == nil {
+                                Text("Select image to extract text")
+                                    .font(.title)
+                                    .foregroundColor(.gray)
+                                    .padding()
+                            }
 
-                        if let image = selectedImage {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .cornerRadius(10)
+                            Button("Select Image") {
+                                self.isShowingImagePicker.toggle()
+                            }
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.blue)
+                            .cornerRadius(10)
 
-                            Text("Detected Text:")
-                                .font(.title)
-                                .foregroundColor(.blue)
+                            if let image = selectedImage {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .cornerRadius(10)
 
-                            if isEditing {
-                                ScrollView {
-                                    TextEditor(text: $editedText)
+                                Text("Detected Text:")
+                                    .font(.title)
+                                    .foregroundColor(.blue)
+
+                                if isEditing {
+                                    ScrollView {
+                                        TextEditor(text: $editedText)
+                                            .padding()
+                                            .background(Color.gray.opacity(0.1))
+                                            .cornerRadius(10)
+                                    }
+                                    .frame(maxHeight: .infinity)
+                                } else {
+                                    Text(detectedText)
                                         .padding()
                                         .background(Color.gray.opacity(0.1))
                                         .cornerRadius(10)
+                                        .font(.body)
                                 }
-                                .frame(maxHeight: .infinity)
-                            } else {
-                                Text(detectedText)
-                                    .padding()
-                                    .background(Color.gray.opacity(0.1))
-                                    .cornerRadius(10)
-                                    .font(.body)
-                            }
 
-                            HStack {
-                                if !isEditing {
-                                    Button("Edit") {
-                                        editedText = detectedText
-                                        isEditing.toggle()
+                                HStack {
+                                    if !isEditing {
+                                        Button("Edit") {
+                                            editedText = detectedText
+                                            isEditing.toggle()
+                                        }
+                                        .padding()
+                                        .foregroundColor(.white)
+                                        .background(Color.blue)
+                                        .cornerRadius(10)
+                                    } else {
+                                        Spacer()
+
+                                        Button("Save") {
+                                            detectedText = editedText
+                                            isEditing.toggle()
+                                            withAnimation {
+                                                self.isSaveButtonVisible = false
+                                            }
+                                            if let index = historyItems.firstIndex(where: { $0.extractedText == detectedText }) {
+                                                historyItems[index].editedText = editedText // Update edited text in history
+                                            }
+                                        }
+                                        .padding()
+                                        .foregroundColor(.white)
+                                        .background(Color.green)
+                                        .cornerRadius(10)
+                                        .offset(y: -keyboardHeight + (isSaveButtonVisible ? -40 : 0))
+                                        .animation(.easeInOut)
+                                    }
+
+                                    Button("Copy") {
+                                        UIPasteboard.general.string = detectedText
                                     }
                                     .padding()
                                     .foregroundColor(.white)
                                     .background(Color.blue)
                                     .cornerRadius(10)
-                                } else {
-                                    Spacer()
 
-                                    Button("Save") {
-                                        detectedText = editedText
-                                        isEditing.toggle()
-                                        withAnimation {
-                                            self.isSaveButtonVisible = false
-                                        }
-                                        if let index = historyItems.firstIndex(where: { $0.extractedText == detectedText }) {
-                                            historyItems[index].editedText = editedText
+                                    Button("Export") {
+                                        if !detectedText.isEmpty {
+                                            exportTextAsFile(detectedText)
                                         }
                                     }
                                     .padding()
                                     .foregroundColor(.white)
-                                    .background(Color.green)
+                                    .background(Color.blue)
                                     .cornerRadius(10)
-                                    .offset(y: -keyboardHeight + (isSaveButtonVisible ? -40 : 0))
-                                    .animation(.easeInOut)
-                                }
 
-                                Button("Copy") {
-                                    UIPasteboard.general.string = detectedText
-                                }
-                                .padding()
-                                .foregroundColor(.white)
-                                .background(Color.blue)
-                                .cornerRadius(10)
-
-                                Button("Export") {
-                                    if !detectedText.isEmpty {
-                                        exportTextAsFile(detectedText)
+                                    Button("Re-scan") {
+                                        if let image = selectedImage {
+                                            extractTextFromImage(image: image)
+                                        }
                                     }
+                                    .padding()
+                                    .foregroundColor(.white)
+                                    .background(Color.blue)
+                                    .cornerRadius(10)
                                 }
-                                .padding()
-                                .foregroundColor(.white)
-                                .background(Color.blue)
-                                .cornerRadius(10)
-
-                                Button("Re-scan") {
-                                    if let image = selectedImage {
-                                        extractTextFromImage(image: image)
-                                    }
-                                }
-                                .padding()
-                                .foregroundColor(.white)
-                                .background(Color.blue)
-                                .cornerRadius(10)
+                                .padding(.bottom, 50) // Add padding to ensure buttons are above the keyboard
                             }
-                            .padding(.bottom, 50)
                         }
+                        .padding()
                     }
-                    .padding()
-                }
-                .background(Color.gray.opacity(0.1))
-                .edgesIgnoringSafeArea(.all)
-                .sheet(isPresented: $isShowingImagePicker, onDismiss: processImage) {
-                    ImagePicker(image: self.$selectedImage)
-                }
-                .onAppear {
-                    NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
-                        guard let keyboardSize = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-                        self.keyboardHeight = keyboardSize.height
+                    .edgesIgnoringSafeArea(.all)
+                    .sheet(isPresented: $isShowingImagePicker, onDismiss: processImage) {
+                        ImagePicker(image: self.$selectedImage)
                     }
-                    NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                        self.keyboardHeight = 0
+                    .onAppear {
+                        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
+                            guard let keyboardSize = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+                            self.keyboardHeight = keyboardSize.height
+                        }
+                        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+                            self.keyboardHeight = 0
+                        }
                     }
                 }
             }
@@ -225,8 +232,8 @@ struct ContentView: View {
             }
             DispatchQueue.main.async {
                 self.detectedText = detectedText
-                let historyItem = HistoryItem(date: Date(), extractedText: detectedText, editedText: detectedText)
-                self.historyItems.append(historyItem)
+                let historyItem = HistoryItem(date: Date(), extractedText: detectedText, editedText: detectedText) // Initialize HistoryItem with detected text
+                self.historyItems.append(historyItem) // Add to historyItems
             }
         }
 
@@ -284,7 +291,6 @@ struct ImagePicker: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 }
 
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
@@ -297,8 +303,9 @@ let dateFormatter: DateFormatter = {
     formatter.timeStyle = .short
     return formatter
 }()
+
 @main
-struct imagerApp: App {
+struct ImagerApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
